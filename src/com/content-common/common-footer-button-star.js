@@ -1,4 +1,4 @@
-import { h, Component } 				from 'preact/preact';
+import {h, Component} 				from 'preact/preact';
 import SVGIcon 							from 'com/svg-icon/icon';
 
 import $NodeStar						from '../../shrub/js/node/node_star';
@@ -13,11 +13,11 @@ export default class ContentCommonFooterButtonStar extends Component {
 
 		this.onStar = this.onStar.bind(this);
 	}
-	
+
 	componentDidMount() {
 //		// TODO: Extract Love from the global love pool (props.node.id)
-//		
-//		if ( this.props.user && this.props.user.id ) {	
+//
+//		if ( this.props.user && this.props.user.id ) {
 //			$NodeLove.GetMy(this.props.node.id)
 //			.then(r => {
 //				this.setState({ 'loved': r });

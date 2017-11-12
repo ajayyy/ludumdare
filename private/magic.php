@@ -93,6 +93,9 @@ if ( $featured_id ) {
 			$magics = nodeMagic_GetOldestByParentName($featured_id, 'cool', MAX_ITEMS_TO_CALC);
 			
 			$node_ids = array_map(function($value) { return $value['node']; }, $magics);
+			// Bail if no nodes
+			if ( !count($node_ids) )
+				exit();
 			$nodes = node_IdToIndex(nodeComplete_GetById($node_ids, F_NODE_NO_BODY | F_NODE_META | F_NODE_LINK|F_NODE_NO_LINKVALUE));
 	
 			$scores = [];
@@ -154,7 +157,7 @@ if ( $featured_id ) {
 
 				$node = &$nodes[$magic['node']];
 				if ( $node ) {
-					$authors = $node['link']['author'];
+					$authors = $node['meta']['author'];
 					
 					$node_grades_out = [];
 					foreach ( $node['meta'] as $key => &$value ) {
@@ -168,7 +171,7 @@ if ( $featured_id ) {
 					$given_grade_value = count(array_diff($grades_out, $node_grades_out));
 
 					// ** Calculate Grades **************************************
-					$raw_team_grades = grade_CountByNotNodeAuthor($node['id'], $authors);
+					$raw_team_grades = grade_CountByNotNodeAuthor($node['id'], $authors, $featured_id);
 					$raw_given_grades = grade_CountByNodeNotAuthor($node['id'], $authors);
 
 					$team_grades = $raw_team_grades / $team_grade_value;
@@ -234,4 +237,7 @@ if ( $featured_id ) {
 			$db->commit();
 		}
 	}
+	
+	// Invalidate cached object that selects random games based on smart ratings.
+	nodeRandomGames_InvalidateCache();
 }

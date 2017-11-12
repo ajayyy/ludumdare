@@ -73,6 +73,28 @@ function node_GetIdByParentTypePublished( $parent, $type, $subtype = null, $subs
 }
 
 
+// Used to find multiple user node IDs quickly for a list of slugs
+// Returns a map with the slug as a key and id as value.
+function node_GetUserIdBySlug( $slugs ) {
+	if ( !count($slugs) ) {
+		return [];
+	}
+	
+	$safeslugs = [];
+	foreach( $slugs as $s ) {
+		// single quote should not exist in the dataset this is called with, but be extra safe.
+		$safeslugs[] = "'" . str_replace("'", "''", $s) . "'";
+	}
+	$sluglist = implode(",", $safeslugs);
+	
+	return db_QueryFetchPair(
+		"SELECT slug, id
+		FROM ".SH_TABLE_PREFIX.SH_TABLE_NODE." 
+		WHERE type='user' AND slug IN (" . $sluglist . ");"
+	);
+}
+
+
 
 function _node_GetPathById( $id, $top = 0, $timeout = 10 ) {
 	if ( !$id )
@@ -154,6 +176,29 @@ function node_GetIdByType( $types ) {
 	}
 	return null;
 }
+
+// a "simple" is ID, Slug, Name
+function node_GetSimpleByType( $type, $subtype = null ) {
+	if ( is_string($subtype) ) {
+		return db_QueryFetch(
+			"SELECT id, slug, name
+			FROM ".SH_TABLE_PREFIX.SH_TABLE_NODE." 
+			WHERE type=? AND subtype=?;",
+			$type,
+			$subtype
+		);
+	}
+	else {
+		return db_QueryFetch(
+			"SELECT id, slug, name
+			FROM ".SH_TABLE_PREFIX.SH_TABLE_NODE." 
+			WHERE type=?;",
+			$type
+		);		
+	}
+}
+
+
 
 // Get Everything Functions
 
@@ -241,6 +286,7 @@ function node_CountByParentAuthorType( $parent = null, $superparent = null, $aut
 	dbQuery_MakeEq('subtype', $subtype, $QUERY, $ARGS);
 	dbQuery_MakeEq('subsubtype', $subsubtype, $QUERY, $ARGS);
 	
+	// NOTE: Pass `null` if you want to ignore the published vs unpublished check. Passing a boolean checks for the exact case.
 	if ( is_bool($published) )
 		dbQuery_MakeOp('published', $published ? '!=' : '=', 0, $QUERY, $ARGS);
 
@@ -253,7 +299,7 @@ function node_CountByParentAuthorType( $parent = null, $superparent = null, $aut
 		LIMIT 1
 		;",
 		...$ARGS
-	) |0;	// Clever: If nothing is returned, result is zero
+	) |0;	// CLEVER: If nothing is returned, result is zero
 }
 
 function node_CountByAuthorType( $ids, $authors, $types = null, $subtypes = null, $subsubtypes = null ) {
@@ -488,6 +534,19 @@ function node_IdToIndex( $nodes ) {
 	return $ret;
 }
 
+function node_GetAuthor( $id ) {
+	$ret = db_QueryFetchSingle(
+		"SELECT author 
+		FROM ".SH_TABLE_PREFIX.SH_TABLE_NODE."
+		WHERE
+			id=?;",
+		$id
+	);
+	if ( count($ret) == 0 ) {
+		return null;
+	}
+	return $ret[0];
+}
 
 function node_SetAuthor( $id, $author ) {
 	return db_QueryUpdate(

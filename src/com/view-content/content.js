@@ -1,15 +1,16 @@
-import { h, Component }					from 'preact/preact';
+import {h, Component}					from 'preact/preact';
 
 import ContentPost						from 'com/content-post/post';
 
 import ContentUsers						from 'com/content-users/users';
 import ContentUser						from 'com/content-user/user';
 //import ContentUserGames                 from 'com/content-user/user-games';
-import ContentUserFollowing             from 'com/content-user/user-following';
-import ContentUserFollowers             from 'com/content-user/user-followers';
+import ContentUserFollowing from 'com/content-user/user-following';
+import ContentUserFollowers from 'com/content-user/user-followers';
 
 import ContentTimeline					from 'com/content-timeline/timeline';
 import ContentGames						from 'com/content-games/games';
+import GamesFilter from 'com/content-games/filter';
 import ContentEvent						from 'com/content-event/event';
 //import ContentEvents					from 'com/content-events/events';
 import ContentGroup						from 'com/content-group/group';
@@ -30,26 +31,28 @@ import ContentStatsEvent				from 'com/content-stats/stats-event';
 import ContentPalette					from 'com/content-palette/palette';
 
 import NavLink							from 'com/nav-link/link';
-import SVGIcon							from 'com/svg-icon/icon';
+//import SVGIcon							from 'com/svg-icon/icon';
 import Common							from 'com/content-common/common';
 import CommonBody						from 'com/content-common/common-body';
-import CommonNav						from 'com/content-common/common-nav';
-import CommonNavButton					from 'com/content-common/common-nav-button';
+//import CommonNav						from 'com/content-common/common-nav';
+//import CommonNavButton					from 'com/content-common/common-nav-button';
 
-import HeadMan 							from '../../internal/headman/headman';
-import marked 							from '../../internal/marked/marked';
+//import HeadMan 							from '../../internal/headman/headman';
+//import marked 							from '../../internal/marked/marked';
+
+import ViewContentPost					from 'content-post';
 
 export default class ViewContent extends Component {
-  constructor(props) {
-    super(props);
-  }
-
-	componentWillReceiveProps(nextProps) {
-		if(nextProps.node) {
-			this.generateMeta(nextProps.node);
-		}
+	constructor(props) {
+		super(props);
 	}
 
+	componentWillReceiveProps(nextProps) {
+//		if(nextProps.node) {
+//			this.generateMeta(nextProps.node);
+//		}
+	}
+/*
 	generateMeta(node) {
 		var metaObject = {"og:type": "website", "og:site_name": "Ludum Dare", "og:url": window.location.href, "twitter:card": "summary", "twitter:site": "@ludumdare"};
 
@@ -84,34 +87,42 @@ export default class ViewContent extends Component {
 
 		HeadMan.insertMeta(metaObject);
 	}
+*/
 
-	getContent( {node, user, path, extra, featured} ) {
+	getTitle( {node} ) {
+		let Title = "";
 		if ( node.name ) {
-			document.title = titleParser.parse(node.name, true);
-			if ( document.title === "" )
-				document.title = window.location.host;
+			Title = titleParser.parse(node.name, true);		// What is titleParser?
+			if ( Title === "" )
+				Title = window.location.host;
 			else
-				document.title += " | " + window.location.host;
+				Title += " | " + window.location.host;
 		}
 		else {
-			document.title = window.location.host;
+			Title = window.location.host;
 		}
+		return Title;
+	}
 
+	getContent( {node, user, path, extra, featured} ) {
 		var EditMode = extra && extra.length && extra[extra.length-1] == 'edit';
+		const GamesFeedFilter = this.state.gamesFilter;
 
 		if ( node.type === 'post' ) {
-			var Content = [];
-			Content.push(<ContentPost node={node} user={user} path={path} extra={extra} authored by love />);
+			return <ViewContentPost node={node} user={user} path={path} extra={extra} edit={EditMode} />;
 
-			if ( !EditMode ) {
-				Content.push(<ContentComments node={node} user={user} path={path} extra={extra} />);
-			}
-
-			return (
-				<div id="content">
-					{Content}
-				</div>
-			);
+//			var Content = [];
+//			Content.push(<ContentPost node={node} user={user} path={path} extra={extra} authored by love />);
+//
+//			if ( !EditMode ) {
+//				Content.push(<ContentComments node={node} user={user} path={path} extra={extra} />);
+//			}
+//
+//			return (
+//				<div id="content">
+//					{Content}
+//				</div>
+//			);
 		}
 		else if ( node.type === 'page' ) {
 			return (
@@ -135,6 +146,27 @@ export default class ViewContent extends Component {
 					{ShowFeed}
 				</div>
 			);
+		}
+//		else if ( node.type === 'tags' ) {
+//			return (
+//				<div id="content">
+//					<Common node={node} user={user} >
+//						<CommonBody>Placeholder for <strong>Tags</strong> page</CommonBody>
+//					</Common>
+//				</div>
+//			);
+//		}
+		else if ( node.type === 'tag' ) {
+			var Methods = ['target'];
+			return (
+				<div id="content">
+					<Common node={node} user={user} >
+						<CommonBody><h2>Tag: {node.name}</h2></CommonBody>
+					</Common>
+					<ContentGames node={node} user={user} path={path} extra={extra} methods={Methods} filter={GamesFeedFilter} />
+				</div>
+			);
+
 		}
 		else if ( node.type === 'user' ) {
 			let View = [];
@@ -234,7 +266,7 @@ export default class ViewContent extends Component {
 
 
 						let FilterDesc = {
-							'smart': <div><strong>Smart</strong>: This is the modern balacing filter. It balances the list using a combination of votes and the karma given to feedback. You start seeing diminishing returns after 50 ratings, but you can make up for it by leaving quality feedback.</div>,
+							'smart': <div><strong>Smart</strong>: This is the modern balancing filter. It balances the list using a combination of votes and the karma given to feedback. You start seeing diminishing returns after 50 ratings, but you can make up for it by leaving quality feedback.</div>,
 							'unbound': <div><strong>Unbound</strong>: This is a variation of the Smart filter that is unbound. For curiousity.</div>,
 							'classic': <div><strong>Classic</strong>: This is the classic balancing filter. It balances the list based on ratings alone. You start seeing diminishing returns after 100 ratings.</div>,
 							'danger': <div><strong>Danger</strong>: This is the rescue filter. Everything with less than 20 ratings sorted top to bottom. Items on the first page are typically 1-2 rating away, so help them out!</div>, //'
@@ -281,16 +313,16 @@ export default class ViewContent extends Component {
 						}
 
 						View.push(<ContentNavUser node={node} user={user} path={path} extra={extra} />);
-						View.push(<ContentGames node={node} user={user} path={path} extra={extra} methods={['authors']} subsubtypes={SubSubType ? SubSubType : ""} />);
+						View.push(<ContentGames node={node} user={user} path={path} extra={extra} methods={['authors']} subsubtypes={SubSubType ? SubSubType : ""} filter={GamesFeedFilter} />);
 					}
 					else if ( ViewType == 'article' ) {
 
 					}
-					else if ( ViewType == 'following'){
+					else if ( ViewType == 'following') {
 						View.push(<ContentNavUser node={node} user={user} path={path} extra={extra} featured={featured} />);
 						View.push(<ContentUserFollowing node={node} user={user} path={path} extra={extra} featured={featured} />);
 					}
-					else if ( ViewType == 'followers'){
+					else if ( ViewType == 'followers') {
 						View.push(<ContentNavUser node={node} user={user} path={path} extra={extra} featured={featured} />);
 						View.push(<ContentUserFollowers node={node} user={user} path={path} extra={extra} featured={featured} />);
 					}
@@ -328,15 +360,42 @@ export default class ViewContent extends Component {
 				ShowNav = <ContentNavTheme node={node} user={user} path={NewPath} extra={NewExtra} featured={featured} />;
 				ShowPage = <ContentEventTheme node={node} user={user} path={NewPath} extra={NewExtra} featured={featured} />;
 			}
-			else if( extra && extra.length && extra[0] == 'games' ){
-				let DefaultSubFilter = 'jam';//'all';
-				let DefaultFilter = 'overall';
-				
+//			else if ( extra && extra.length && extra[0] == 'results' ) {
+//				if ( node && node.meta && node.meta['theme-mode'] < 8 ) {
+//					return (
+//						<div id="content">
+//							<Common node={node} user={user}>
+//								<CommonBody>Results not yet ready.</CommonBody>
+//							</Common>
+//						</div>
+//					);
+//
+//				}
+//				else {
+//					return (
+//						<div id="content">
+//							<Common node={node} user={user}>
+//								<CommonBody>Yes</CommonBody>
+//							</Common>
+//						</div>
+//					);
+//				}
+//			}
+			else if ( extra && extra.length && extra[0] == 'games' || extra[0] == 'results' ) {
+				let DefaultSubFilter = 'all';
+				let DefaultFilter = 'smart';
+
+				// Results
+				if ( node && node.meta && node.meta['theme-mode'] >= 8 ) {
+					DefaultSubFilter = 'jam';//'all';
+					DefaultFilter = 'overall';
+				}
+
 				function EvalFilter2(str) {
 					let MappingTable = {
 						'all': 'compo+jam',
 						'classic': 'cool',
-						
+
 						'overall': 'grade-01-result',
 						'fun': 'grade-02-result',
 						'innovation': 'grade-03-result',
@@ -381,11 +440,11 @@ export default class ViewContent extends Component {
 						case 'audio':
 						case 'humor':
 						case 'mood':
-							Methods = [EvalFilter2(Filter),'reverse'];
+							Methods = [EvalFilter2(Filter), 'reverse'];
 							break;
-						
+
 						case 'zero':
-							Methods = ['grade','reverse'];
+							Methods = ['grade', 'reverse'];
 							break;
 
 						case 'jam':
@@ -409,40 +468,28 @@ export default class ViewContent extends Component {
 					Methods = [EvalFilter2(DefaultFilter)];
 				}
 
-/*
-				let FilterDesc = {
-					'smart': <div><strong>Smart</strong>: This is the modern balacing filter. It balances the list using a combination of votes and the karma given to feedback. You start seeing diminishing returns after 50 ratings, but you can make up for it by leaving quality feedback.</div>,
-					'unbound': <div><strong>Unbound</strong>: This is a variation of the Smart filter that is unbound. For curiousity.</div>,
-					'classic': <div><strong>Classic</strong>: This is the classic balancing filter. It balances the list based on ratings alone. You start seeing diminishing returns after 100 ratings.</div>,
-					'danger': <div><strong>Danger</strong>: This is the rescue filter. Everything with less than 20 ratings sorted top to bottom. Items on the first page are typically 1-2 rating away, so help them out!</div>, //'
-					'zero': <div><strong>Zero</strong>: This filter shows the most neglected games. These are often new users that didn't understand you should rate games. Leaving them some feedback is greatly appreciated.</div>, //'
-					'feedback': <div><strong>Feedback</strong>: This filter lets you find who is working the hardest, leaving quality feedback for others.</div>,
-					'grade': <div><strong>Grade</strong>: This filter lets you find the games that have the most ratings.</div>,
-				};
-*/
-
-				if ( true ) {
-					let Path = this.props.path+'/games/';
-					
-					ShowFilters = (
-						<Common node={this.props.node} class="filter-item filter-game">
-							<CommonNav>
-								<CommonNavButton href={Path+Filter+'/jam'} class={SubFilter == 'jam' ? '-selected' : ''}><SVGIcon>trophy</SVGIcon><div>Jam</div></CommonNavButton>
-								<CommonNavButton href={Path+Filter+'/compo'} class={SubFilter == 'compo' ? '-selected' : ''}><SVGIcon>trophy</SVGIcon><div>Compo</div></CommonNavButton>
-								<CommonNavButton href={Path+Filter+'/all'} class={SubFilter == 'all' ? '-selected' : ''}><SVGIcon>earth</SVGIcon><div>All</div></CommonNavButton>
-							</CommonNav>
-							<CommonNav>
-								<CommonNavButton href={Path+'overall/'+SubFilter} class={'-no-icon '+(Filter == 'overall' ? '-selected' : '')}><div>Overall</div></CommonNavButton>
-								<CommonNavButton href={Path+'fun/'+SubFilter} class={'-no-icon '+(Filter == 'fun' ? '-selected' : '')}><div>Fun</div></CommonNavButton>
-								<CommonNavButton href={Path+'innovation/'+SubFilter} class={'-no-icon '+(Filter == 'innovation' ? '-selected' : '')}><div>Innovation</div></CommonNavButton>
-								<CommonNavButton href={Path+'theme/'+SubFilter} class={'-no-icon '+(Filter == 'theme' ? '-selected' : '')}><div>Theme</div></CommonNavButton>
-								<CommonNavButton href={Path+'graphics/'+SubFilter} class={'-no-icon '+(Filter == 'graphics' ? '-selected' : '')}><div>Graphics</div></CommonNavButton>
-								<CommonNavButton href={Path+'audio/'+SubFilter} class={'-no-icon '+(Filter == 'audio' ? '-selected' : '')}><div>Audio</div></CommonNavButton>
-								<CommonNavButton href={Path+'humor/'+SubFilter} class={'-no-icon '+(Filter == 'humor' ? '-selected' : '')}><div>Humor</div></CommonNavButton>
-								<CommonNavButton href={Path+'mood/'+SubFilter} class={'-no-icon '+(Filter == 'mood' ? '-selected' : '')}><div>Mood</div></CommonNavButton>
-							</CommonNav>
-						</Common>
-					);
+				if ( node && node.meta && node.meta['theme-mode'] < 8 ) {
+					ShowFilters = <GamesFilter
+							Filter={Filter}
+							SubFilter={SubFilter}
+							Path={`${this.props.path}/${extra[0]}/`}
+							node={node}
+							onchangefilter={(filter)=>{this.setState({'gamesFilter': filter});}}
+							showEvent={true}
+							showRatingSort={true}
+							showRatingSortDesc={true}
+						/>;
+				}
+				else {	// results
+					ShowFilters = <GamesFilter
+							Filter={Filter}
+							SubFilter={SubFilter}
+							Path={`${this.props.path}/${extra[0]}/`}
+							node={node}
+							onchangefilter={(filter)=>{this.setState({'gamesFilter': filter});}}
+							showEvent={true}
+							showVotingCategory={true}
+						/>;
 				}
 //							<CommonBody>{FilterDesc[Filter]}</CommonBody>
 
@@ -452,14 +499,14 @@ export default class ViewContent extends Component {
 //								<CommonNavButton href={Path+'zero/'+SubFilter} class={Filter == 'zero' ? '-selected' : ''}><SVGIcon>gift</SVGIcon><div>Zero</div></CommonNavButton>
 //								<CommonNavButton href={Path+'feedback/'+SubFilter} class={Filter == 'feedback' ? '-selected' : ''}><SVGIcon>bubbles</SVGIcon><div>Feedback</div></CommonNavButton>
 //								<CommonNavButton href={Path+'grade/'+SubFilter} class={Filter == 'grade' ? '-selected' : ''}><SVGIcon>todo</SVGIcon><div>Grade</div></CommonNavButton>
-				
+
 				SubFilter = EvalFilter2(SubFilter);
-				
+
 				// Require games to be part of the content node passed
 				Methods.push('parent');
 				//Methods.push('superparent');	// Why doesn't this work? It's unnecssary, but it should still work
-				
-				ShowPage = <ContentGames node={node} user={user} path={path} extra={extra} noevent methods={Methods} subsubtypes={SubFilter ? SubFilter : null} />;
+
+				ShowPage = <ContentGames node={node} user={user} path={path} extra={extra} noevent methods={Methods} subsubtypes={SubFilter ? SubFilter : null} filter={GamesFeedFilter} />;
 
 //				let SubSubType = 'compo+jam';	// alphabetical
 //				if ( extra && extra.length > 1 ) {
@@ -483,7 +530,7 @@ export default class ViewContent extends Component {
 				</div>
 			);
 		}
-		else if ( node.type === 'events' || node.type === 'group' ) {
+		else if ( node.type === 'events' || node.type === 'group' || node.type === 'tags' ) {
 			return <div id="content"><ContentGroup node={node} user={user} path={path} extra={extra} /></div>;
 		}
 		else if ( node.type === 'root' ) {
@@ -493,11 +540,40 @@ export default class ViewContent extends Component {
 			if ( Viewing == '/' ) {
 				Viewing = '/feed';
 				if ( user && user.id ) {
-					Viewing = '/feed';		// Don't delete me
+					Viewing = '/home';		// Don't delete me
 				}
 			}
 
-			if ( Viewing == '/news' ) {
+			if ( Viewing == '/feed' ) {
+				return (
+					<ContentTimeline types={['post']} methods={['all']} node={node} user={user} path={path} extra={extra}>
+						{ShowNavRoot}
+						<ContentTimeline types={['post']} subtypes={['news']} methods={['all']} minimized nomore noemptymessage limit={1} node={node} user={user} path={path} extra={extra} />
+					</ContentTimeline>
+				);
+			}
+			else if ( Viewing == '/home' ) {
+				var ShowHome = null;
+				// TODO: switch modes
+
+				// If my entry is Published
+//				if ( featured && featured.what && featured.what.length && featured.what[0] && featured.what_node && featured.what_node[featured.what[0]] && featured.what_node[featured.what[0]].published ) {
+//					ShowHome = (
+//						<Common node={node} user={user}>
+//							<CommonBody>You can start playing and rating games <NavLink href={featured.path+'/games'}>here</NavLink>.</CommonBody>
+//						</Common>
+//					);
+//				}
+
+				return (
+					<ContentTimeline types={['post']} methods={['all']} node={node} user={user} path={path} extra={extra}>
+						{ShowNavRoot}
+						{ShowHome}
+						<ContentTimeline types={['post']} subtypes={['news']} methods={['all']} minimized nomore noemptymessage limit={1} node={node} user={user} path={path} extra={extra} />
+					</ContentTimeline>
+				);
+			}
+			else if ( Viewing == '/news' ) {
 				return <ContentTimeline types={['post']} subtypes={['news']} methods={['all']} node={node} user={user} path={path} extra={extra}>{ShowNavRoot}</ContentTimeline>;
 			}
 			else if ( Viewing == '/hot' ) {
@@ -505,9 +581,10 @@ export default class ViewContent extends Component {
 			}
 //			else if ( Viewing == '/games' ) {
 			else if ( extra && extra.length && extra[0] == 'games' ) {
+				let DefaultSubSubFilter = (featured && (featured.meta['theme-mode'] > 5)) ? 'featured' : 'all';
 				let DefaultSubFilter = 'all';
-				let DefaultFilter = 'grade';//'danger';//'smart';
-				
+				let DefaultFilter = 'danger';//'smart';
+
 				function EvalFilter(str) {
 					let MappingTable = {
 						'all': 'compo+jam+craft+release',
@@ -522,7 +599,10 @@ export default class ViewContent extends Component {
 				let Methods = [];
 				let Filter = DefaultFilter;
 				let SubFilter = DefaultSubFilter;
+				let SubSubFilter = DefaultSubSubFilter;
 
+				if ( extra.length > 3 )
+					SubSubFilter = extra[3];
 				if ( extra.length > 2 )
 					SubFilter = extra[2];
 				if ( extra.length > 1 )
@@ -541,7 +621,7 @@ export default class ViewContent extends Component {
 							break;
 
 						case 'zero':
-							Methods = ['grade','reverse'];
+							Methods = ['grade', 'reverse'];
 							break;
 
 						case 'jam':
@@ -565,59 +645,40 @@ export default class ViewContent extends Component {
 					Methods = [EvalFilter(DefaultFilter)];
 				}
 
-
-				let FilterDesc = {
-					'smart': <div><strong>Smart</strong>: This is the modern balacing filter. It balances the list using a combination of votes and the karma given to feedback. You start seeing diminishing returns after 50 ratings, but you can make up for it by leaving quality feedback.</div>,
-					'unbound': <div><strong>Unbound</strong>: This is a variation of the Smart filter that is unbound. For curiousity.</div>,
-					'classic': <div><strong>Classic</strong>: This is the classic balancing filter. It balances the list based on ratings alone. You start seeing diminishing returns after 100 ratings.</div>,
-					'danger': <div><strong>Danger</strong>: This is the rescue filter. Everything with less than 20 ratings sorted top to bottom. Items on the first page are typically 1-2 rating away, so help them out!</div>, //'
-					'zero': <div><strong>Zero</strong>: This filter shows the most neglected games. These are often new users that didn't understand you should rate games. Leaving them some feedback is greatly appreciated.</div>, //'
-					'feedback': <div><strong>Feedback</strong>: This filter lets you find who is working the hardest, leaving quality feedback for others.</div>,
-					'grade': <div><strong>Grade</strong>: This filter lets you find the games that have the most ratings.</div>,
-				};
-
 				let ShowFilters = null;
 				if ( true ) {
-					let Path = this.props.path+'/games/';
+					ShowFilters = <GamesFilter
+						Filter={Filter}
+						SubFilter={SubFilter}
+						SubSubFilter={SubSubFilter}
+						Path={`${this.props.path}/games/`}
+						node={node}
+						onchangefilter={(filter)=>{this.setState({'gamesFilter': filter});}}
+						showFeatured={true}
+						showEvent={true}
+						showRatingSort={true}
+						showRatingSort={true}
+					/>;
+				}
 
-					ShowFilters = (
-						<Common node={this.props.node} class="filter-item filter-game">
-							<CommonNav>
-								<CommonNavButton href={Path+Filter+'/all'} class={SubFilter == 'all' ? '-selected' : ''}><SVGIcon>gamepad</SVGIcon><div>All</div></CommonNavButton>
-								<CommonNavButton href={Path+Filter+'/jam'} class={SubFilter == 'jam' ? '-selected' : ''}><SVGIcon>trophy</SVGIcon><div>Jam</div></CommonNavButton>
-								<CommonNavButton href={Path+Filter+'/compo'} class={SubFilter == 'compo' ? '-selected' : ''}><SVGIcon>trophy</SVGIcon><div>Compo</div></CommonNavButton>
-								<CommonNavButton href={Path+Filter+'/unfinished'} class={SubFilter == 'unfinished' ? '-selected' : ''}><SVGIcon>trash</SVGIcon><div>Unfinished</div></CommonNavButton>
-							</CommonNav>
-							<CommonNav>
-								<CommonNavButton href={Path+'smart/'+SubFilter} class={Filter == 'smart' ? '-selected' : ''}><SVGIcon>ticket</SVGIcon><div>Smart</div></CommonNavButton>
-								<CommonNavButton href={Path+'classic/'+SubFilter} class={Filter == 'classic' ? '-selected' : ''}><SVGIcon>ticket</SVGIcon><div>Classic</div></CommonNavButton>
-								<CommonNavButton href={Path+'danger/'+SubFilter} class={Filter == 'danger' ? '-selected' : ''}><SVGIcon>help</SVGIcon><div>Danger</div></CommonNavButton>
-								<CommonNavButton href={Path+'zero/'+SubFilter} class={Filter == 'zero' ? '-selected' : ''}><SVGIcon>gift</SVGIcon><div>Zero</div></CommonNavButton>
-								<CommonNavButton href={Path+'feedback/'+SubFilter} class={Filter == 'feedback' ? '-selected' : ''}><SVGIcon>bubbles</SVGIcon><div>Feedback</div></CommonNavButton>
-								<CommonNavButton href={Path+'grade/'+SubFilter} class={Filter == 'grade' ? '-selected' : ''}><SVGIcon>todo</SVGIcon><div>Grade</div></CommonNavButton>
-							</CommonNav>
-							<CommonBody>{FilterDesc[Filter]}</CommonBody>
-						</Common>
-					);
+				let NodeArg = node;
+				if ( SubSubFilter == 'featured' ) {
+					Methods.push('parent');
+					NodeArg = featured;
 				}
 
 				SubFilter = EvalFilter(SubFilter);
 
-				return (
-					<div id="content">
-						{ShowNavRoot}
-						{ShowFilters}
-						<ContentGames node={node} user={user} path={path} extra={extra} methods={Methods} subsubtypes={SubFilter ? SubFilter : null} />
-					</div>
-				);
-			}
-			else if ( Viewing == '/feed' ) {
-				return (
-					<ContentTimeline types={['post']} methods={['all']} node={node} user={user} path={path} extra={extra}>
-						{ShowNavRoot}
-						<ContentTimeline types={['post']} subtypes={['news']} methods={['all']} minimized nomore noemptymessage limit={1} node={node} user={user} path={path} extra={extra} />
-					</ContentTimeline>
-				);
+				var ShowHeader = null;
+				if ( NodeArg ) {
+					return (
+						<div id="content">
+							{ShowNavRoot}
+							{ShowFilters}
+							<ContentGames node={NodeArg} user={user} path={path} extra={extra} methods={Methods} subsubtypes={SubFilter ? SubFilter : null} filter={GamesFeedFilter}/>
+						</div>
+					);
+				}
 			}
 			else if ( Viewing == '/palette' ) {
 				return <div id="content"><ContentPalette node={node} user={user} path={path} extra={extra} /></div>;
@@ -627,16 +688,17 @@ export default class ViewContent extends Component {
 			}
 		}
 		else {
-			return <div id="content"><div class='content-base'>Unsupported Node Type: {""+node.type}</div></div>;
+			return <div id="content"><div class="content-base">Unsupported Node Type: {""+node.type}</div></div>;
 		}
 	}
 
 	render( props ) {
 		if ( props.node ) {
+			document.title = this.getTitle(props);
 			return this.getContent(props);
 		}
 		else {
 			return <div id="content">{this.props.children}</div>;
 		}
 	}
-};
+}

@@ -3,7 +3,9 @@ import includePaths		from 'rollup-plugin-includepaths';
 import nodent			from 'rollup-plugin-nodent';
 
 export default {
-	'format': 'es',
+	'output': {
+		'format': 'es'
+	},
 	'plugins': [
 		includePaths({
 			'paths': [
@@ -16,12 +18,15 @@ export default {
 //			},
 			'extensions': ['.es6.js'],
 		}),
+
+		// NOTE: nodent doesn't fully supports rest-spread (yet). Neither does Buble/Rollup though
 		nodent({
 			'promises': true,
 			'noRuntime': true,
 			//'sourcemap': true,
 			//'es6target': true,
 		}),
+
 //		nodeResolve({
 //			'jsnext': true
 //		}),

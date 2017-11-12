@@ -2,76 +2,76 @@
 class CCoreData {
 	constructor() {
 		this.nodes = {
-			1: {
-				name:"",
-				slug:'roots',
-				type:"roots",
-				subtype:"",
-				parent:0,
-				author:0,
-				body:"",
+			"1": {
+				"name": "",
+				"slug": 'roots',
+				"type": "roots",
+				"subtype": "",
+				"parent": 0,
+				"author": 0,
+				"body": "",
 			},
-			2: {
-				name:"Users",
-				slug:'u',
-				type:"users",
-				subtype:"user",
-				parent:1,
-				author:0,
-				body:"",
+			"2": {
+				"name": "Users",
+				"slug": 'u',
+				"type": "users",
+				"subtype": "user",
+				"parent": 1,
+				"author": 0,
+				"body": "",
 			},
-			3: {
-				name:'PoV',
-				slug:'pov',
-				type:"user",
-				subtype:"",
-				parent:2,
-				author:0,
-				body:"Confirmed Human",
-				meta: {
-					avatar:'/other/logo/mike/Chicken64.png',
-					twitter:'mikekasprzak',
+			"3": {
+				"name": 'PoV',
+				"slug": 'pov',
+				"type": "user",
+				"subtype": "",
+				"parent": 2,
+				"author": 0,
+				"body": "Confirmed Human",
+				"meta": {
+					"avatar": '/other/logo/mike/Chicken64.png',
+					"twitter": 'mikekasprzak',
 				}
 			},
-			4: {
-				name:'',
-				slug:'mikekasprzak',
-				type:"symlink",
-				subtype:"",
-				parent:2,
-				author:0,
-				body:"",
-				extra:3,		// What we point at //
+			"4": {
+				"name": '',
+				"slug": 'mikekasprzak',
+				"type": "symlink",
+				"subtype": "",
+				"parent": 2,
+				"author": 0,
+				"body": "",
+				"extra": 3,		// What we point at //
 			},
 
-			5: {
-				name:"Ludum Dare",
-				slug:'ludum-dare',
-				type:"event",
-				subtype:"",
-				parent:1,
-				author:3,
-				body:"",
+			"5": {
+				"name": "Ludum Dare",
+				"slug": 'ludum-dare',
+				"type": "event",
+				"subtype": "",
+				"parent": 1,
+				"author": 3,
+				"body": "",
 			},
-			
-			6: {
-				name:"Articles",
-				slug:'articles',
-				type:"browse",
-				subtype:"article",
-				parent:1,
-				author:0,
-				body:"",				
+
+			"6": {
+				"name": "Articles",
+				"slug": 'articles',
+				"type": "browse",
+				"subtype": "article",
+				"parent": 1,
+				"author": 0,
+				"body": "",
 			},
-			
-			10:{
-				name:"**Alpha Testing**: Week 1",
-				slug:"alpha-testing-week-1",
-				type:"post",
-				subtype:"",
-				parent:5,
-				author:3,
-				body:"Hi everybody! Welcome to the new site!\n\n"+
+
+			"10": {
+				"name": "**Alpha Testing**: Week 1",
+				"slug": "alpha-testing-week-1",
+				"type": "post",
+				"subtype": "",
+				"parent": 5,
+				"author": 3,
+				"body": "Hi everybody! Welcome to the new site!\n\n"+
 					"Over the next few weeks, we'll be gradually rolling out **core** features of this website. "+
 					"It's going to be a little bumpy. Many things you're expecting wont be available right away (Posting, Commenting, Notifications, Mobile, ... well really, most features are either unfinished or disabled). Have patience! We'll get there.\n\n"+
 					"This week we're starting with just two things:\n\n"+
@@ -92,14 +92,14 @@ class CCoreData {
 					"We'll be back soon with more rounds of **Theme Selection**, and to start making **Teams**."
 			},
 
-			11:{
-				name:"**Live Streaming**: The New Way",
-				slug:"live-streaming-the-new-way",
-				type:"post",
-				subtype:"",
-				parent:5,
-				author:3,
-				body:"Hey streamers!\n\n"+
+			"11": {
+				"name": "**Live Streaming**: The New Way",
+				"slug": "live-streaming-the-new-way",
+				"type": "post",
+				"subtype": "",
+				"parent": 5,
+				"author": 3,
+				"body": "Hey streamers!\n\n"+
 					"I've been chatting with the team at **Twitch**, and they've asked me to ask you _veeeeery nicely_ to move our **Ludum Dare** Twitch streams over to **https://twitch.tv/Creative**.\n\n"+
 					"How do you do that?\n\n"+
 					"Set your game to **Creative** on Twitch, and include the hashtag **#LDJAM** in your title. Easy.\n\n"+
@@ -114,15 +114,15 @@ class CCoreData {
 					"On **Hitbox**, set your game to **Ludum Dare**. Include hashtags to let us know _what_ you're doing.\n\n"+
 					"Support for other streaming services (**YouTube**, **Beam**) will return for future events."
 			},
-			
-			12:{
-				name:"Hello World",
-				slug:"hello-world",
-				type:"post",
-				subtype:"",
-				parent:5,
-				author:3,
-				body:"Well, the first post always has to be \"Hello World\", right? It's the law. :smile:"
+
+			"12": {
+				"name": "Hello World",
+				"slug": "hello-world",
+				"type": "post",
+				"subtype": "",
+				"parent": 5,
+				"author": 3,
+				"body": "Well, the first post always has to be \"Hello World\", right? It's the law. :smile:"
 			},
 //			11:{
 //				name:"**True Story:** The Internet is ~~DEAD~~ _REAL_",
@@ -147,31 +147,31 @@ class CCoreData {
 //				parent:6,
 //				author:3,
 //				body:"This is message for @PoV. Are you here @PoV? I need @help.\n\n```js\n  var Muffin = 10;\n  Muffin += 2;\n\n  echo \"The Wheel\";```\n\nWhoa.\n\nAlso call @murr-DEATH-weasel."
-//			}			
+//			}
 		};
-		
+
 		this.slugs = {};
-		
+
 		this.NODE_NULL = 0;
 		this.NODE_ROOT = 1;
 		this.NODE_USERS = 2;
-		
+
 		// Populate slugs table with keys (parent!slug) //
 		this.addNodeSlugKeys( this.nodes );
 	}
-	
+
 	addNodeSlugKeys( nodes ) {
 		for ( node in nodes ) {
 			this.slugs[ this.nodes[node].parent+'!'+this.nodes[node].slug ] = node;
-		}		
+		}
 	}
-	
+
 	getNodeById( id ) {
 		// Convert Number to a String. Counter intuative yes, but this saves an extra cast //
 		if ( typeof id === 'number' ) {
 			id = id.toString();
 		}
-		
+
 		// True test //
 		if ( typeof id === 'string' ) {
 			if ( id == '0' ) {
@@ -182,7 +182,7 @@ class CCoreData {
 			}
 			else {
 				// Fetch Missing //
-				
+
 				// Return Nodes //
 			}
 		}
@@ -191,19 +191,19 @@ class CCoreData {
 			let missing = id.filter( node => {
 				return !(node in this.nodes);
 			});
-			
+
 			// Fetch Missing //
-			
-			
+
+
 			// Return Nodes //
 			return id.map( node => {
 				return this.nodes[node] || null;
 			});
 		}
-		
+
 		return null;
 	}
-	
+
 	getNodeTypeById( id ) {
 		// Convert Number to a String. Counter intuative yes, but this saves an extra cast //
 		if ( typeof id === 'number' )
@@ -213,7 +213,7 @@ class CCoreData {
 			return this.nodes[id].type;
 		return null;
 	}
-	
+
 	getNodeParentById( id ) {
 		// Convert Number to a String. Counter intuative yes, but this saves an extra cast //
 		if ( typeof id === 'number' )
@@ -243,17 +243,17 @@ class CCoreData {
 			return this.nodes[id].slug;
 		return null;
 	}
-	
+
 	// Prefetching is an optimization. To make it clearer that you are prefetching, use this function //
 	preFetchNodeById( id ) {
 		this.getNodeById( id );
 	}
-	
+
 	preFetchNodeWithAuthorById( id ) {
 		this.getNodeById( id );
 		this.getNodeById( this.getAuthorOfNodeById(id) );
 	}
-	
+
 	getNodeIdByParentAndSlug( parent, slug ) {
 		let key = parent+'!'+slug;
 		if ( this.slugs[key] ) {
@@ -261,14 +261,14 @@ class CCoreData {
 		}
 
 		// Slug not found. We'll have to do work //
-		
+
 		return null;
 	}
-	
+
 
 	getAuthorOfNodeById( id ) {
 		let nodes = this.getNodeById( id );
-		
+
 		if ( Array.isArray(id) ) {
 			// Fetch all authors, removing duplicates //
 			let authors = {};
@@ -278,7 +278,7 @@ class CCoreData {
 					authors[ nodes[node].author ] = nodes[node].author;
 				}
 			}
-			
+
 			return Object.keys(authors).map(key => authors[key]);
 		}
 		else {
@@ -286,7 +286,7 @@ class CCoreData {
 				return nodes.author;
 			}
 		}
-		
+
 		return null;
 	}
 
@@ -295,13 +295,13 @@ class CCoreData {
 	getNodeIdByParentAndSlugs( parent, slugs ) {
 		if ( !parent )
 			return null;
-		
+
 		// Check if special //
 		var parent_data = this.getNodeById(parent);
 		if ( parent_data.type === 'symlink' ) {
 			parent = parent_data.extra;
 		}
-		
+
 		if ( (slugs.length == 1) && (slugs[0] === "") ) {
 			// Cleverness: only the root should ever have a blank slug //
 			return parent;
@@ -328,10 +328,10 @@ class CCoreData {
 
 		// Build List //
 		if ( !Array.isArray(ids) )
-			ids = [ parent.toString() ];
+			ids = [parent.toString()];
 		else
 			ids.push( parent );
-			
+
 		if ( (slugs.length == 1) && (slugs[0] === "") ) {
 			// Cleverness: only the root node should ever have a blank slug //
 			return parent;
@@ -340,7 +340,7 @@ class CCoreData {
 			// Cleverness: slugs gets shifted before the main function is called.
 			return this.getNodePathByParentAndSlugs( this.getNodeIdByParentAndSlug(parent, slugs.shift()), slugs, ids );
 		}
-		
+
 		return ids;
 
 //		else if ( slugs[0] === "" ) {
@@ -356,12 +356,12 @@ class CCoreData {
 	getNodePathById( id, ids ) {
 		if ( !id )
 			return ids;
-			
+
 		if ( !Array.isArray(ids) )
-			ids = [ id.toString() ];
+			ids = [id.toString()];
 		else
 			ids.unshift( id.toString() );
-		
+
 		return this.getNodePathById( this.getNodeParentById(id), ids );
 	}
 
@@ -369,16 +369,16 @@ class CCoreData {
 	getNodePathSlugsById( id, ids ) {
 		if ( !id )
 			return ids;
-			
+
 		if ( !Array.isArray(ids) )
-			ids = [ this.getNodeSlugById(id) ];
+			ids = [this.getNodeSlugById(id)];
 		else
 			ids.unshift( this.getNodeSlugById(id) );
-		
+
 		return this.getNodePathSlugsById( this.getNodeParentById(id), ids );
 	}
 
-};
+}
 
 // Singleton //
 let CoreData = new CCoreData();

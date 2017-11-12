@@ -1,4 +1,4 @@
-import { h, Component } 				from 'preact/preact';
+import {h, Component} 				from 'preact/preact';
 import NavSpinner						from 'com/nav-spinner/spinner';
 import NavLink 							from 'com/nav-link/link';
 import SVGIcon 							from 'com/svg-icon/icon';
@@ -7,20 +7,22 @@ import ButtonBase						from 'com/button-base/base';
 
 import $ThemeIdeaVote					from '../../shrub/js/theme/theme_idea_vote';
 
+import PieChart							from 'com/visualization/piechart/piechart';
+
 
 export default class ContentEventSlaughter extends Component {
 	constructor( props ) {
 		super(props);
-		
+
 		this.state = {
 			'current': null,
 			'votes-left': null,
 			'recent': [],
-			
+
 			'votes': null,
 			'ideas': null
 		};
-				
+
 		this.submitYesVote = this.submitYesVote.bind(this);
 		this.submitNoVote = this.submitNoVote.bind(this);
 		this.submitFlagVote = this.submitFlagVote.bind(this);
@@ -29,7 +31,7 @@ export default class ContentEventSlaughter extends Component {
 
 		this._renderMyIdea = this._renderMyIdea.bind(this);
 	}
-	
+
 	componentDidMount() {
 		var onVotes = $ThemeIdeaVote.GetMy(this.props.node.id)
 		.then(r => {
@@ -38,76 +40,76 @@ export default class ContentEventSlaughter extends Component {
 				var Start = End - 50;
 				if ( Start < 0 )
 					Start = 0;
-				
+
 				// NOTE: The 'recent' order is quite random. Better than nothing though
-				
-				this.setState({ 'votes': r.votes, 'recent': Object.keys(r.votes).slice(Start).reverse() });
+
+				this.setState({'votes': r.votes, 'recent': Object.keys(r.votes).slice(Start).reverse()});
 			}
 			else {
-				this.setState({ 'votes': [] });
+				this.setState({'votes': []});
 			}
 		})
 		.catch(err => {
-			this.setState({ error: err });
+			this.setState({'error': err});
 		});
-		
+
 		var onIdeas = $ThemeIdeaVote.Get(this.props.node.id)
 		.then(r => {
 			if ( r.ideas ) {
 				//console.log('get',r);
-				this.setState({ 'ideas': r.ideas });
+				this.setState({'ideas': r.ideas});
 			}
 			else {
-				this.setState({ 'ideas': [] });
+				this.setState({'ideas': []});
 			}
 		})
 		.catch(err => {
-			this.setState({ error: err });
+			this.setState({'error': err});
 		});
-		
+
 		// Once Finished
-		Promise.all([ onVotes, onIdeas ])
+		Promise.all([onVotes, onIdeas])
 		.then(r => {
 			console.log("Loaded my Ideas and Themes", r);
-			
+
 			this.pickRandomIdea();
 		})
 		.catch(err => {
 			console.log("Boo hoo", err);
 		});
 	}
-	
+
 	pickRandomIdea() {
 		if ( this.state.votes && this.state.ideas ) {
 			var vote_keys = Object.keys(this.state.votes);
 			var idea_keys = Object.keys(this.state.ideas);
-			
+
 			var available = idea_keys.filter(key => vote_keys.indexOf(key) === -1);
-						
+
 			if ( available.length === 0 ) {
-				this.setState({ 'done': true, 'votes-left': available.length });
+				this.setState({'done': true, 'votes-left': available.length});
 			}
 
 			var id = parseInt(Math.random() * available.length);
-	
-			this.setState({ 'current': available[id], 'votes-left': available.length });
+
+			this.setState({'current': available[id], 'votes-left': available.length});
 		}
 		else {
-			this.setState({ 'error': 'Not loaded' });
+			this.setState({'error': 'Not loaded'});
 		}
 	}
-	
+
 	addToRecentQueue( id ) {
 		this.state.recent.push(id);
-		
+
 		while (this.state.recent.length > 50) {
 			var junk = this.state.recent.shift();
-			console.log("trimmed",junk);
+			console.log("trimmed", junk);
 		}
-		
-		this.setState({ 'recent': this.state.recent });
+
+		this.setState({'recent': this.state.recent});
 	}
-	
+
 	renderIcon( value ) {
 		if ( value === 1 )
 			return <span title={value}><SVGIcon>checkmark</SVGIcon></span>;
@@ -115,17 +117,17 @@ export default class ContentEventSlaughter extends Component {
 			return <span title={value}><SVGIcon>cross</SVGIcon></span>;
 		else if ( value === -1 )
 			return <span title={value}><SVGIcon>flag</SVGIcon></span>;
-		
+
 		return <span title={value}><SVGIcon>fire</SVGIcon></span>;
 	}
-	
+
 	renderRecentQueue() {
 		// Render the last 10
 		var End = this.state.recent.length;
 		var Start = End - 10;
 		if ( Start < 0 )
 			Start = 0;
-		
+
 		var ret = [];
 //		for ( var idx = Start; idx < End; idx++ ) {		// Regular Order
 		for ( var idx = End; idx-- > Start; ) {			// Reverse Order
@@ -138,14 +140,14 @@ export default class ContentEventSlaughter extends Component {
 		}
 		return ret;
 	}
-	
+
 	_submitVote( command, e ) {
 		return $ThemeIdeaVote[command](this.state.current)
 		.then(r => {
 			if ( r.status === 200 ) {
 				this.state.votes[this.state.current] = r.value;
 				this.addToRecentQueue(this.state.current);
-				
+
 				this.pickRandomIdea();
 			}
 			else {
@@ -153,7 +155,7 @@ export default class ContentEventSlaughter extends Component {
 			}
 		})
 		.catch(err => {
-			this.setState({ error: err });
+			this.setState({'error': err});
 		});
 	}
 	submitYesVote( e ) {
@@ -165,45 +167,72 @@ export default class ContentEventSlaughter extends Component {
 	submitFlagVote( e ) {
 		return this._submitVote('Flag', e);
 	}
-	
+
 	openLink( e ) {
 		// Google link https://www.google.com/search?q=[query]
 		let url = "https://www.google.com/search?q="+encodeURIComponent(this.state.ideas[this.state.current]);
 		let win = window.open(url, '_blank');
-  		win.focus();
+		win.focus();
 	}
 
 	_renderMyIdea( id ) {
 		var idea = escape(this.state.ideas[id]);
-		
+
 		return (
 			<div class="-item">
-				<div class='-text' title={idea}>{idea}</div>
+				<div class="-text" title={idea}>{idea}</div>
 			</div>
 		);
 	}
 	renderMyIdeas() {
 		return Object.keys(this.state.ideas).map(this._renderMyIdea);
 	}
-	
-	renderBody( {current, votes, ideas, done/*, error*/} ) {
+
+	renderBody( state ) {
+
+		let seen = Object.keys(state.votes).length;
+
+		var labels = [
+			'slaughtered',
+			'kept',
+			'left'
+		];
+
+		var values = [
+			0,
+			0,
+			state['votes-left']
+		];
+
+		if ( seen != 0 ) {
+			Object.values(state.votes).forEach((v) => {
+				if ( v == 0 ) {
+					values[0]++;
+				}
+				else if ( v == 1 ) {
+					values[1]++;
+				}
+				// else if v=2 it's flagged
+			});
+		}
+
 		var StatsAndDetails = (
-			<div>
+			<div class="history">
 				<h3>Recent Themes</h3>
 				{this.renderRecentQueue()}
-			</div>			
+			</div>
 		);
-		
-		if ( done ) {
+
+		if ( state.done ) {
 			return (
-				<div>
-					<div>Wow! {"You're totally done!"} Amazing! You slaughtered {Object.keys(votes).length} themes!</div>
-					{StatsAndDetails}
+				<div class="-stats">
+					<div>Wow! You're totally done! Amazing! You slaughtered {Object.keys(state.votes).length} themes!</div>
+					<PieChart values={values} labels={labels} />
 				</div>
 			);
 		}
-		else if ( current ) {
-			var ThemeName = (ideas[current]);
+		else if ( state.current ) {
+			var ThemeName = (state.ideas[state.current]);
 			return (
 				<div class="event-slaughter">
 					<div class="-title">Would this be a good Theme?</div>
@@ -211,25 +240,27 @@ export default class ContentEventSlaughter extends Component {
 						<div>{ThemeName}</div>
 					</div>
 					<div class="-buttons">
-						<button class="middle big -green" onclick={this.submitYesVote} title='Good'>YES ✓</button>
-						<button class="middle big -red" onclick={this.submitNoVote} title='Bad'>NO ✕</button>
-						
+						<button class="middle big -green" onclick={this.submitYesVote} title="Good">YES ✓</button>
+						<button class="middle big -red" onclick={this.submitNoVote} title="Bad">NO ✕</button>
+
 						<div class="-title">If inappropriate or offensive, you can <button class="-tiny" onclick={this.submitFlagVote}>Flag ⚑</button> it.</div>
 					</div>
 					<div class="-stats">
 						<div>
-							<strong>Themes Slaughtered:</strong> <span>{Object.keys(votes).length}</span>
+							<strong>Themes Slaughtered:</strong> <span>{Object.keys(state.votes).length}</span>
 						</div>
 						{StatsAndDetails}
+						<PieChart values={values} labels={labels} />
 					</div>
 				</div>
 			);
-		}		
+		}
 	}
 
 	render( {node, user/*, path, extra*/}, state ) {
+
 		var Title = (<h3>Theme Slaughter Round</h3>);
-		
+
 		if ( node.slug && state.votes && state.ideas ) {
 			if ( user && user['id'] ) {
 				return (

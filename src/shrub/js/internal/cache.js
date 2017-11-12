@@ -17,8 +17,8 @@ function CollectGarbage() {
 		key = STORAGE.key(idx);
 		if ( key[0] == '!' ) {
 			var timestamp = _Fetch(key);
-		
-			// Check if it's expired	
+
+			// Check if it's expired
 			if ( timestamp ) {
 				if ( Date.now() > timestamp ) {
 					_Remove('!'+key);
@@ -48,14 +48,14 @@ export function Store( key, value, ttl = null ) {
 	else {
 		_Remove('!'+key);
 	}
-	
+
 	// Store the value (it's string storage, so we JSONify)
 	return _Store('$'+key, JSON.stringify(value));
 }
 export function Fetch( key, ttl = null ) {
 	var timestamp = _Fetch('!'+key);
 
-	// Check if it's expired	
+	// Check if it's expired
 	if ( timestamp ) {
 		if ( Date.now() > timestamp ) {
 			_Remove('!'+key);
@@ -63,7 +63,7 @@ export function Fetch( key, ttl = null ) {
 			return null;
 		}
 	}
-	
+
 	// Fetch the data
 	var ret = _Fetch('$'+key);
 	if ( !ret ) {
@@ -76,5 +76,5 @@ export function Fetch( key, ttl = null ) {
 	}
 
 	// Return the parsed data
-	return JSON.parse(ret);		
+	return JSON.parse(ret);
 }

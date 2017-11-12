@@ -4,7 +4,7 @@ import ContentLoading					from 'com/content-loading/loading';
 import ContentError						from 'com/content-error/error';
 
 import ContentSimple					from 'com/content-simple/simple';
-import ContentUserBar       			from 'com/content-user/user-bar';
+import ContentUserBar from 'com/content-user/user-bar';
 import ContentCommon					from 'com/content-common/common';
 
 import $Node							from '../../shrub/js/node/node';
@@ -71,8 +71,8 @@ export default class ContentUserFollowers extends Component {
             var followers = state.followerNodes
             .sort( (a,b) => {
 
-                var a_friend = props.user.private.link.star.indexOf(a.id) != -1;
-                var b_friend = props.user.private.link.star.indexOf(b.id) != -1;
+                var a_friend = props.user.private.meta.star.indexOf(a.id) != -1;
+                var b_friend = props.user.private.meta.star.indexOf(b.id) != -1;
 
                 if ( a_friend == b_friend){ // either their both freinds or both followers
                     return 0;

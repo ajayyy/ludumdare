@@ -6,8 +6,6 @@ import NavLink 							from 'com/nav-link/link';
 import SVGIcon 							from 'com/svg-icon/icon';
 import IMG2 							from 'com/img2/img2';
 
-import ContentFooterButtonComments		from 'com/content-footer/footer-button-comments';
-
 import ContentCommentsMarkup			from 'comments-markup';
 
 import $Note							from '../../shrub/js/note/note';
@@ -29,7 +27,6 @@ export default class ContentCommentsComment extends Component {
 			'lovecount': props.comment.love,
 		};
 
-//		console.log('C '+props.comment.id+": ", this.state.editing,this.state.preview);
 
 		this.onEditing = this.onEditing.bind(this);
 		this.onPreview = this.onPreview.bind(this);
@@ -41,7 +38,7 @@ export default class ContentCommentsComment extends Component {
 		this.onSave = this.onSave.bind(this);
 		this.onCancel = this.onCancel.bind(this);
 		this.onPublish = this.onPublish.bind(this);
-
+		this.onPublishAnon = this.onPublishAnon.bind(this);
 		this.onLove = this.onLove.bind(this);
 		this.onReply = this.onReply.bind(this);
 	}
@@ -84,6 +81,14 @@ export default class ContentCommentsComment extends Component {
 		});
 	}
 
+	onPublishAnon( e ) {
+		if (this.canSave() ) {
+			if ( this.props.onpublish ) {
+				this.props.onpublish(e, true);
+			}
+		}
+	}
+
 	onPublish( e ) {
 		if ( this.canSave() ) {
 			if ( this.props.onpublish ) {
@@ -95,7 +100,6 @@ export default class ContentCommentsComment extends Component {
 	}
 
 	onEdit( e ) {
-		console.log('edit');
 		this.setState({'editing': true, 'preview': false});
 	}
 
@@ -130,18 +134,21 @@ export default class ContentCommentsComment extends Component {
 		var user = props.user;
 		var comment = props.comment;
 		var author = props.author;
-		
-//		console.log('R '+comment.id+": ", state.editing, state.preview);
-		if ( author ) {
-			var Name = author.name;
-			if ( author.meta['real-name'] )
-				Name = author.meta['real-name'];
+		var error = props.error;
 
+		if ( author || comment.author == 0 ) {
+			var Name = "Anonymous";
 			var Avatar = "///other/dummy/user64.png";
-			if ( author.meta['avatar'] )
-				Avatar = author.meta['avatar'];
+			if ( author ) {
+				Name = author.name;
+				if ( author.meta['real-name'] )
+					Name = author.meta['real-name'];
 
-			var ShowTitle = null;
+				if ( author.meta['avatar'] )
+					Avatar = author.meta['avatar'] + ".64x64.fit.png";;
+			}
+
+			var ShowTitle = [];
 			if ( !state.editing || state.preview ) {
 				var Created = new Date(comment.created);
 				var Modified = new Date(comment.modified);
@@ -152,17 +159,23 @@ export default class ContentCommentsComment extends Component {
 				// 1 minute leeway on edits
 				var HasEdited = ModDiff > (60*1000);
 
-				ShowTitle = [
-					<div class="-title">
-						<span class="-author">{Name}</span> (<NavLink class="-atname" href={"/users/"+author.slug}>{"@"+author.slug}</NavLink>)
-					</div>,
-				];
+				ShowTitle.push(
+					<span>by <span class="-author">{Name}</span></span>
+				);
+
+				if ( author ) {
+					ShowTitle.push(
+						<span>&nbsp;(<NavLink class="-atname" href={"/users/"+author.slug}>{"@"+author.slug}</NavLink>){comment.anonymous ? " (Published Anonymously)" : ""}</span>
+					);
+				}
 
 				if ( comment.created ) {
-					ShowTitle.push(<div class="-date">posted <span title={getLocaleTimeStamp(Created)}>{getRoughAge(DateDiff)}</span><span title={getLocaleDate(Modified)}>{HasEdited?" (edited)":""}</span></div>);
+					ShowTitle.push(
+						<span>, published <span class="-date" title={getLocaleTimeStamp(Created)}>{getRoughAge(DateDiff)}</span><span title={getLocaleDate(Modified)}>{HasEdited?" (edited)":""}</span></span>
+					);
 				}
 				else {
-					ShowTitle.push(<div class="-date">not yet posted</div>);
+					ShowTitle.push(<span>, not yet published</span>);
 				}
 			}
 
@@ -195,7 +208,7 @@ export default class ContentCommentsComment extends Component {
 							{ShowLove}
 							{ShowEdit}
 						</div>
-						
+
 						<div class="-left">{ShowReply}</div>
 					</div>
 				);
@@ -219,6 +232,9 @@ export default class ContentCommentsComment extends Component {
 
 				var ShowRight = [];
 				if ( props.publish ) {
+					if (props.allowAnonymous) {
+						ShowRight.push(<div class={"-button -publish"+(state.modified?" -modified":"")} onclick={this.onPublishAnon}><SVGIcon>publish</SVGIcon><div>Publish Anonymously</div></div>);
+					}
 					ShowRight.push(<div class={"-button -publish"+(state.modified?" -modified":"")} onclick={this.onPublish}><SVGIcon>publish</SVGIcon><div>Publish</div></div>);
 				}
 				else {
@@ -234,13 +250,21 @@ export default class ContentCommentsComment extends Component {
 				);
 			}
 
+			var ShowError = null;
+			if ( error ) {
+				ShowError = (
+					<div class="-error">{"Failed to post comment: " + error}</div>
+				);
+			}
+
 			return (
 				<div id={"comment-"+comment.id} class={"-item -comment -indent-"+props.indent}>
 					<div class="-avatar"><IMG2 src={Avatar} /></div>
 					<div class="-body">
 						{ShowTopNav}
+						{ShowError}
 						<div class="-text">
-							{ShowTitle}
+							<div class="-title">{ShowTitle}</div>
 							<ContentCommentsMarkup user={user} editing={state.editing && !state.preview} onmodify={this.onModify} placeholder="type a comment here" limit={props.limit}>{comment.body}</ContentCommentsMarkup>
 						</div>
 						{ShowBottomNav}

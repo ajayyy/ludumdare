@@ -6,7 +6,7 @@ import ContentLoading					from 'com/content-loading/loading';
 import ContentError						from 'com/content-error/error';
 
 import ContentSimple					from 'com/content-simple/simple';
-import ContentUserBar       			from 'com/content-user/user-bar';
+import ContentUserBar from 'com/content-user/user-bar';
 
 import ContentCommon					from 'com/content-common/common';
 import ContentCommonBody				from 'com/content-common/common-body';
@@ -31,7 +31,7 @@ export default class ContentUserFollowing extends Component {
         // make sure we actually have a following to display
         if (this.hasFollowing() && this.hasPermission()){
             // if were looking at our own page then display following
-            this.getFollowing(this.props.user.private.link.star);
+            this.getFollowing(this.props.user.private.meta.star);
         }
 
     }
@@ -41,7 +41,7 @@ export default class ContentUserFollowing extends Component {
     }
 
     hasFollowing(){
-        return (this.props.user['private'] && this.props.user.private['link']&& this.props.user.private.link['star']);
+        return (this.props.user['private'] && this.props.user.private['meta']&& this.props.user.private.meta['star']);
     }
 
     getFollowing(ids){
@@ -71,7 +71,7 @@ export default class ContentUserFollowing extends Component {
                 </ContentCommon>
             );
         }
-        else if (state.followingNodes  && state.followingNodes.length > 0){
+        else if (state.followingNodes && state.followingNodes.length > 0){
 
             // turn our array of following nodes to ContentUserBar 's
             var following = state.followingNodes
@@ -105,11 +105,11 @@ export default class ContentUserFollowing extends Component {
 
             return (
                 <ContentCommon {...props}>
-                	<ContentCommonBody>
-                		<p>To add someone to your team, you need to both follow each other. Do so by visiting each others user pages, and clicking the <span><SVGIcon baseline small gap>user-plus</SVGIcon><strong>Follow</strong></span> button.</p>
-	                	<p>Users that follow each other will be shown below as <span><SVGIcon baseline small gap>users</SVGIcon><strong>Friends</strong></span>.</p>
-	                </ContentCommonBody>
-                    {following}
+					<ContentCommonBody>
+						<p>To add someone to your team, you need to both follow each other. Do so by visiting each others user pages, and clicking the <span><SVGIcon baseline small gap>user-plus</SVGIcon><strong>Follow</strong></span> button.</p>
+						<p>Users that follow each other will be shown below as <span><SVGIcon baseline small gap>users</SVGIcon><strong>Friends</strong></span>.</p>
+					</ContentCommonBody>
+					{following}
                 </ContentCommon>
             );
         }
